@@ -5,6 +5,5 @@ __pycache__/
 .DS_Store
 data/**
 !data/.gitkeep
+!data/SNAPSHOT.json
 reports/figures/*.png
-forward/paper_log.csv
-
