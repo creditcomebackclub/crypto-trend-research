@@ -1,0 +1,54 @@
+{
+  "analysis": {
+    "start": "2018-01-01",
+    "end": "2026-09-30",
+    "seed": 20261003,
+    "primary_frequency": "1d",
+    "secondary_frequency": "4h"
+  },
+  "data": {
+    "spot_sources": ["coinbase", "kraken"],
+    "funding_source": "deribit",
+    "quote_currencies": ["USD", "USDC", "USDT"],
+    "min_history_days": 90,
+    "snapshot_release": "research-snapshot-v1"
+  },
+  "universe": {
+    "sizes": [10, 20],
+    "rebalance": "MS",
+    "volume_lookback_days": 30,
+    "excluded_symbols": ["USDC", "USDT", "DAI", "PYUSD", "EURC", "WBTC", "WETH", "STETH", "CBETH"]
+  },
+  "strategy": {
+    "daily_lookbacks": [20, 60, 120, 250],
+    "four_hour_lookbacks": [30, 90, 180, 375],
+    "volatility_targets": [0.20, 0.30, 0.40],
+    "headline_volatility_target": 0.40,
+    "max_exposure": 1.0,
+    "funding_z_lookback": 90,
+    "funding_extreme_z": 2.0,
+    "momentum_lookbacks": [30, 90],
+    "momentum_skip_days": 7
+  },
+  "costs": {
+    "headline_bps_per_side": 25,
+    "sensitivity_bps_per_side": [10, 25, 50],
+    "slippage_impact_coefficient": 10.0,
+    "paper_trade_notional_usd": 10000,
+    "cash_yield_sensitivity": 0.04
+  },
+  "validation": {
+    "minimum_training_days": 730,
+    "test_block_months": 12,
+    "purge_days": 7,
+    "bootstrap_samples": 1000,
+    "bootstrap_block_days": 7,
+    "confidence": 0.95
+  },
+  "success": {
+    "max_cagr_shortfall_vs_btc": 0.02,
+    "minimum_drawdown_reduction": 0.25,
+    "paired_sharpe_difference_ci_lower": 0.0
+  }
+}
+
