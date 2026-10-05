@@ -119,6 +119,7 @@ BTC diagnostic net CAGR -5.0%, max drawdown -42.3%, Sharpe 0.11, with 0 conserva
 
 ## 9. Limitations
 
+- The preregistration and results commits were created only 20 seconds apart. Git history proves their order, but it does not prove that the hypotheses were locked before the results were viewed.
 - Public exchange product lists can omit delisted assets, creating upward survivorship bias.
 - Exchange candles may be absent when no trades occur; missing bars are flagged rather than silently filled.
 - Coinbase and Kraken availability differs by asset and history depth. Kraken's OHLC endpoint is intentionally treated as a shallow cross-check.
