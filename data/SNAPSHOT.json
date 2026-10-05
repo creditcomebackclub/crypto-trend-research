@@ -2175,5 +2175,6 @@
     "raw/kraken/4h/ZRXUSD.parquet": "831434199b388d13474fe041bea378f4fdff30474a3da874c300f2d79be5a9eb",
     "processed/daily.parquet": "52b8df2cdc29b7427aab3a485eb4f8ee437c02af80ffe2b99362cd8ec6d6ab67",
     "processed/data_quality.json": "71a21c11b1af9f353fb90377a4c09cff1f29ac95c06f7eb72038bbda0921580e"
-  }
+  },
+  "url": "https://github.com/creditcomebackclub/crypto-trend-research/releases/download/research-snapshot-v1/research-snapshot-v1.tar.gz"
 }
