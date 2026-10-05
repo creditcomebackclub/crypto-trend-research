@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.DS_Store
+data/**
+!data/.gitkeep
+!data/SNAPSHOT.json
