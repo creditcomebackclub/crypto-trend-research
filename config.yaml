@@ -49,5 +49,17 @@
     "max_cagr_shortfall_vs_btc": 0.02,
     "minimum_drawdown_reduction": 0.25,
     "paired_sharpe_difference_ci_lower": 0.0
+  },
+  "meta": {
+    "label_horizon_days": 20,
+    "barrier_volatility_multiple": 2.0,
+    "barrier_floor": 0.01,
+    "barrier_cap": 0.25,
+    "purge_days": 20,
+    "embargo_days": 20,
+    "permutations": 200,
+    "thresholds": [0.50, 0.55, 0.60, 0.65],
+    "logistic_c": [0.01, 0.1, 1.0, 10.0],
+    "ci_mode": false
   }
 }

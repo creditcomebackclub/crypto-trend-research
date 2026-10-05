@@ -36,6 +36,10 @@ Can a systematic strategy on liquid crypto assets match Bitcoin buy-and-hold wit
 | Momentum + BTC regime | 7.5% [-27.5%, 71.6%] | -79.1% [-96.2%, -53.8%] | 0.43 [-0.20, 1.16] | 192.3× |
 | BTC trend + funding filter | 21.6% [1.1%, 49.5%] | -34.6% [-57.9%, -21.8%] | 0.87 [0.17, 1.61] | 174.2× |
 | ETH trend + funding filter | 25.2% [2.8%, 55.4%] | -36.3% [-58.4%, -22.6%] | 0.92 [0.24, 1.68] | 122.7× |
+| BTC trend + logistic sized | 7.9% [-1.5%, 18.8%] | -18.5% [-32.2%, -9.6%] | 0.67 [-0.05, 1.39] | 32.8× |
+| BTC trend + logistic threshold | 22.4% [-0.1%, 46.9%] | -31.2% [-53.5%, -18.9%] | 0.93 [0.12, 1.62] | 92.6× |
+| BTC trend + boosting sized | 10.0% [0.2%, 21.6%] | -19.6% [-31.6%, -10.3%] | 0.76 [0.08, 1.45] | 34.0× |
+| BTC trend + boosting threshold | 30.5% [6.0%, 60.5%] | -33.6% [-53.7%, -18.8%] | 1.11 [0.35, 1.83] | 93.1× |
 
 ## 4. Pre-registered hypotheses
 
@@ -74,10 +78,67 @@ The table is descriptive; its funding state is formed from trailing observations
 
 The fixed top-quintile strategy is reported against equal-weight top 20 above, including the pre-registered BTC regime-filter variant. Paired weekly-block difference CIs (momentum minus equal-weight top 20) were CAGR [-74.1%, -6.0%], Sharpe [-0.64, -0.00], and max drawdown [-22.2%, -0.1%].
 
+## Meta-labeling
+
+The fixed BTC H1 rule generated 73 labeled entry events; 36 (49.3%) hit the +2σ close barrier first. Every probability below is outer-fold out of sample, and every strategy return is next-open and net of the locked costs. **Result: No sized meta-model passed every pre-registered success gate.**
+
+| Strategy | CAGR | Vol | Sharpe | Sortino | Calmar | Max DD | Underwater days | Worst month | Turnover | Paired Sharpe CI vs rule |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| BTC trend | 28.0% | 28.6% | 1.005 | 1.159 | 0.833 | -33.6% | 753 | -13.7% | 120.0× | — |
+| BTC trend + logistic sized | 7.9% | 12.5% | 0.669 | 0.600 | 0.427 | -18.5% | 931 | -12.2% | 32.8× | [-0.897, 0.225] |
+| BTC trend + logistic threshold | 22.4% | 25.1% | 0.932 | 0.921 | 0.719 | -31.2% | 931 | -13.7% | 92.6× | [-0.415, 0.271] |
+| BTC trend + boosting sized | 10.0% | 13.8% | 0.760 | 0.712 | 0.512 | -19.6% | 616 | -12.6% | 34.0× | [-0.807, 0.297] |
+| BTC trend + boosting threshold | 30.5% | 27.3% | 1.110 | 1.194 | 0.906 | -33.6% | 753 | -13.7% | 93.1× | [-0.173, 0.367] |
+
+### Probability quality
+
+| Model | n | AUC vs base | Brier vs base | Log loss vs base | Paired difference CIs (model − base) |
+|---|---:|---:|---:|---:|---|
+| logistic | 64 | 0.475 vs 0.545 | 0.307 vs 0.251 | 0.925 vs 0.695 | AUC [-0.281, 0.119]; Brier [0.005, 0.114]; log loss [0.039, 0.452] |
+| boosting | 64 | 0.496 vs 0.545 | 0.299 vs 0.251 | 1.029 vs 0.695 | AUC [-0.279, 0.160]; Brier [-0.005, 0.110]; log loss [0.037, 0.685] |
+
+Logistic regression does not beat the base-rate baseline on probability quality (log loss and Brier) and does not beat it on ranking (AUC), under the locked CI rule.
+
+Gradient boosting does not beat the base-rate baseline on probability quality (log loss and Brier) and does not beat it on ranking (AUC), under the locked CI rule.
+
+### Feature-group ablation
+
+Negative ΔAUC and positive ΔBrier mean the dropped group helped the full model. Strategy CIs are paired weekly-block differences for the ablated sized strategy minus its full-model counterpart.
+
+| Model | Dropped group | ΔAUC (95% CI) | ΔBrier (95% CI) | ΔCAGR | ΔSharpe (95% CI) | ΔMax DD |
+|---|---|---:|---:|---:|---:|---:|
+| logistic | trend state | 0.049 [-0.000, 0.103] | -0.003 [-0.014, 0.007] | 0.9% | 0.036 [-0.030, 0.107] | -0.4% |
+| logistic | volatility | -0.015 [-0.089, 0.057] | 0.006 [-0.007, 0.019] | -0.0% | -0.024 [-0.128, 0.079] | -0.7% |
+| logistic | positioning | 0.022 [-0.048, 0.090] | -0.007 [-0.022, 0.008] | -0.1% | 0.029 [-0.043, 0.108] | 0.8% |
+| logistic | market breadth | -0.033 [-0.110, 0.045] | -0.011 [-0.030, 0.007] | -1.1% | -0.022 [-0.127, 0.077] | 0.5% |
+| logistic | calendar | 0.022 [-0.055, 0.092] | -0.002 [-0.016, 0.012] | 1.7% | 0.085 [-0.059, 0.235] | -0.6% |
+| boosting | trend state | 0.014 [0.000, 0.047] | -0.002 [-0.005, 0.000] | 0.1% | 0.006 [-0.004, 0.027] | 0.0% |
+| boosting | volatility | -0.010 [-0.037, 0.000] | 0.006 [0.000, 0.015] | -0.0% | -0.001 [-0.004, 0.001] | 0.0% |
+| boosting | positioning | -0.009 [-0.031, 0.000] | 0.005 [0.000, 0.012] | -0.0% | -0.001 [-0.004, 0.001] | 0.0% |
+| boosting | market breadth | 0.000 not estimable (zero-width bootstrap) | 0.000 [-0.001, 0.000] | -0.0% | -0.000 [-0.002, 0.000] | 0.0% |
+| boosting | calendar | 0.000 not estimable (zero-width bootstrap) | 0.000 not estimable (zero-width bootstrap) | 0.0% | 0.000 not estimable (zero-width bootstrap) | 0.0% |
+
+### Permutation null
+
+The null refits model selection, preprocessing, calibration, and sizing after quarter-block label/return shuffles. Production uses 200 seeded permutations.
+
+| Model | Real ΔSharpe | Null 95th percentile | Empirical p |
+|---|---:|---:|---:|
+| logistic | -0.336 | -0.139 | 0.373 |
+| boosting | -0.245 | -0.039 | 0.647 |
+
+### Multiple-testing correction
+
+- Deflated Sharpe probability with 11 total strategy trials: rule 84.3%; logistic sized 54.7%; boosting sized 64.3%.
+- CSCV PBO: prior seven-variant set 7.1%; combined eleven-variant set 32.9%.
+- Optional on-chain features were skipped because no qualifying free, keyless source with a locked historical publication lag was available.
+- The logistic sized model remains a paper-only forward candidate regardless of this backtest verdict; nothing trades automatically.
+
+
 ## 5. Deflated Sharpe and PBO
 
-- Headline Deflated Sharpe Ratio probability: 89.3% across 7 strategy variants (benchmarks excluded).
-- CSCV Probability of Backtest Overfitting: 7.1%.
+- Headline Deflated Sharpe Ratio probability: 84.3% across 11 registered strategy variants from prompts #6 and #7 (benchmarks excluded).
+- CSCV Probability of Backtest Overfitting: 32.9%.
 - These diagnostics reduce confidence for strategy selection across multiple variants; they do not turn a backtest into forward evidence.
 
 ## 6. Regime breakdown
@@ -119,7 +180,7 @@ BTC diagnostic net CAGR -5.0%, max drawdown -42.3%, Sharpe 0.11, with 0 conserva
 
 ## 9. Limitations
 
-- The preregistration and results commits were created only 20 seconds apart. Git history proves their order, but it does not prove that the hypotheses were locked before the results were viewed.
+- The original preregistration and results commits were created only 20 seconds apart. Git history proves their order, but it does not prove that those hypotheses were locked before the results were viewed. Meta-labeling v1 was instead pushed to GitHub separately before its real-data analysis.
 - Public exchange product lists can omit delisted assets, creating upward survivorship bias.
 - Exchange candles may be absent when no trades occur; missing bars are flagged rather than silently filled.
 - Coinbase and Kraken availability differs by asset and history depth. Kraken's OHLC endpoint is intentionally treated as a shallow cross-check.
@@ -142,6 +203,10 @@ BTC diagnostic net CAGR -5.0%, max drawdown -42.3%, Sharpe 0.11, with 0 conserva
 | Momentum + BTC regime | 63.7% | 0.46 | 0.09 | 915 | -37.2% | -29.1% | 26.7% | 19.7 | 51.3% |
 | BTC trend + funding filter | 26.6% | 0.98 | 0.62 | 790 | -13.0% | -12.4% | 25.8% | 19.7 | 37.7% |
 | ETH trend + funding filter | 28.9% | 1.04 | 0.69 | 932 | -12.4% | -13.6% | 26.3% | 20.2 | 29.3% |
+| BTC trend + logistic sized | 12.5% | 0.60 | 0.43 | 931 | -12.2% | -8.4% | 21.9% | 20.6 | 12.9% |
+| BTC trend + logistic threshold | 25.1% | 0.92 | 0.72 | 931 | -13.7% | -12.4% | 19.4% | 19.0 | 28.0% |
+| BTC trend + boosting sized | 13.8% | 0.71 | 0.51 | 616 | -12.6% | -8.7% | 22.7% | 21.7 | 14.4% |
+| BTC trend + boosting threshold | 27.3% | 1.19 | 0.91 | 753 | -13.7% | -12.4% | 22.7% | 21.7 | 32.8% |
 
 ### Exact point-in-time top-20 membership changes
 

@@ -12,6 +12,7 @@ import pandas as pd
 from .backtest import StrategyRun, run_trend, run_weights
 from .config import ROOT, load_config
 from .metrics import calculate_metrics, drawdown, equity_curve
+from .meta import run_meta_study, write_meta_artifact
 from .portfolio import PortfolioResult, equal_weight, simulate_portfolio
 from .signals import (
     apply_funding_crowding_filter,
@@ -347,6 +348,30 @@ def run_research(
             plt.xlabel("Trailing funding z-score"); plt.ylabel("Forward 7-day BTC return"); plt.title("Funding crowding and forward returns"); plt.tight_layout()
             figure_path = ROOT / "reports" / "figures"; figure_path.mkdir(parents=True, exist_ok=True)
             plt.savefig(figure_path / "funding-z-forward-return.png", dpi=150); plt.close()
+    meta = run_meta_study(
+        open_prices,
+        close_prices,
+        volume,
+        top20,
+        funding,
+        runs,
+        cfg,
+        source_label,
+    )
+    runs.update(meta.runs)
+    if meta.artifact is not None and "synthetic" not in source_label.lower():
+        write_meta_artifact(meta.artifact, ROOT / "models" / "meta-labeling-v1.json")
+        meta_summary = {
+            "supported": meta.supported,
+            "classification": meta.classification,
+            "paired": meta.paired,
+            "ablations": meta.ablations,
+            "permutation": meta.permutation,
+        }
+        (ROOT / "reports" / "meta-labeling.json").write_text(
+            json.dumps(meta_summary, indent=2, allow_nan=True) + "\n",
+            encoding="utf-8",
+        )
     seed = cfg["analysis"]["seed"]
     samples = cfg["validation"]["bootstrap_samples"]
     cis = {name: _metric_cis(run, seed + i * 10, samples) for i, (name, run) in enumerate(runs.items())}
@@ -367,7 +392,7 @@ def run_research(
     variants = pd.concat({name: runs[name].portfolio.returns for name in strategy_names}, axis=1).dropna()
     pbo = probability_of_backtest_overfitting(variants)
     headline = "BTC trend"
-    dsr = deflated_sharpe_ratio(runs[headline].portfolio.returns, len(strategy_names))
+    dsr = deflated_sharpe_ratio(runs[headline].portfolio.returns, 11)
     btc = runs["BTC buy-and-hold"]
     strategy = runs[headline]
     paired = paired_weekly_block_bootstrap_metric_cis(strategy.portfolio.returns, btc.portfolio.returns, samples=samples, seed=seed)
@@ -496,9 +521,11 @@ The separately labeled perpetual variant can be long or short, remains capped at
 
 The fixed top-quintile strategy is reported against equal-weight top 20 above, including the pre-registered BTC regime-filter variant. Paired weekly-block difference CIs (momentum minus equal-weight top 20) were CAGR {_ci_text(momentum_paired['cagr'], True)}, Sharpe {_ci_text(momentum_paired['sharpe'])}, and max drawdown {_ci_text(momentum_paired['max_drawdown'], True)}.
 
+{meta.report_section}
+
 ## 5. Deflated Sharpe and PBO
 
-- Headline Deflated Sharpe Ratio probability: {_fmt_pct(dsr)} across {len(strategy_names)} strategy variants (benchmarks excluded).
+- Headline Deflated Sharpe Ratio probability: {_fmt_pct(dsr)} across 11 registered strategy variants from prompts #6 and #7 (benchmarks excluded).
 - CSCV Probability of Backtest Overfitting: {_fmt_pct(pbo)}.
 - These diagnostics reduce confidence for strategy selection across multiple variants; they do not turn a backtest into forward evidence.
 
@@ -530,6 +557,7 @@ Cash earns 0% in every headline row. As a separately labeled sensitivity, assumi
 
 ## 9. Limitations
 
+- The original preregistration and results commits were created only 20 seconds apart. Git history proves their order, but it does not prove that those hypotheses were locked before the results were viewed. Meta-labeling v1 was instead pushed to GitHub separately before its real-data analysis.
 - Public exchange product lists can omit delisted assets, creating upward survivorship bias.
 - Exchange candles may be absent when no trades occur; missing bars are flagged rather than silently filled.
 - Coinbase and Kraken availability differs by asset and history depth. Kraken's OHLC endpoint is intentionally treated as a shallow cross-check.

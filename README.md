@@ -19,8 +19,9 @@ The table below is the locked out-of-sample result from the frozen public-data s
 - BTC trend returned 28.0% annualized versus 44.0% for buy-and-hold, while reducing max drawdown from -76.7% to -33.6%.
 - The funding-crowding filter hurt rather than helped: BTC trend CAGR fell from 28.0% to 21.6% and drawdown worsened slightly.
 - Cross-sectional top-20 momentum lost 27.9% annualized after costs and suffered a -98.7% drawdown.
-- The corrected Deflated Sharpe probability was 89.3% across seven strategy variants; CSCV PBO was 11.4%. Those diagnostics do not rescue a failed primary criterion.
+- After adding the four registered meta variants, the corrected Deflated Sharpe probability was 84.3% across eleven variants and CSCV PBO rose from 7.1% to 32.9%. Those diagnostics do not rescue a failed primary criterion.
 - The delta-neutral funding-carry diagnostic lost 5.0% annualized after realized funding and costs. The 4-hour study was not estimable because Kraken exposes only 720 recent bars, short of the locked training window.
+- Meta-labeling did not improve the BTC trend rule out of sample: logistic sizing reduced Sharpe from 1.005 to 0.669, ranked events worse than the fold-specific base-rate forecast (AUC 0.475 versus 0.545), and no feature group produced a robust improvement. Its smaller -18.5% drawdown mainly came from cutting average exposure to 12.9%.
 
 ## What this repository tests
 
