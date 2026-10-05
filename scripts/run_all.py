@@ -29,20 +29,46 @@ def load_fixture(path: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     return tuple(frame.pivot(index="timestamp", columns="asset", values=value).sort_index() for value in ["open", "close", "volume"])
 
 
-def load_deribit(root: Path) -> tuple[pd.DataFrame | None, pd.DataFrame | None, pd.DataFrame | None]:
-    funding_columns, close_columns, high_columns = {}, {}, {}
+def load_deribit(root: Path) -> tuple[pd.DataFrame | None, pd.DataFrame | None, pd.DataFrame | None, pd.DataFrame | None, pd.DataFrame | None]:
+    funding_columns, open_columns, close_columns, high_columns, volume_columns = {}, {}, {}, {}, {}
     for path in sorted((root / "raw" / "deribit" / "funding").glob("*.parquet")):
         frame = pd.read_parquet(path)
         if len(frame):
-            column = "interest_8h" if "interest_8h" in frame else frame.columns[0]
+            # ``interest_8h`` is a rolling quote repeated in hourly history.
+            # Sum the incremental 1-hour rates to obtain the daily payment.
+            column = "interest_1h" if "interest_1h" in frame else frame.columns[0]
             funding_columns[f"{path.stem}-USD"] = frame[column].resample("1D").sum()
     for path in sorted((root / "raw" / "deribit" / "perpetual").glob("*.parquet")):
         frame = pd.read_parquet(path)
         if len(frame):
-            close_columns[f"{path.stem}-USD"] = frame["close"]
-            high_columns[f"{path.stem}-USD"] = frame["high"]
+            # Deribit daily bars are timestamped at 08:00 UTC; normalize them to
+            # UTC calendar days before aligning with spot bars at midnight.
+            open_columns[f"{path.stem}-USD"] = frame["open"].resample("1D").first()
+            close_columns[f"{path.stem}-USD"] = frame["close"].resample("1D").last()
+            high_columns[f"{path.stem}-USD"] = frame["high"].resample("1D").max()
+            volume_columns[f"{path.stem}-USD"] = frame["volume"].resample("1D").sum()
     make = lambda values: pd.DataFrame(values).sort_index() if values else None
-    return make(funding_columns), make(close_columns), make(high_columns)
+    return make(funding_columns), make(open_columns), make(close_columns), make(high_columns), make(volume_columns)
+
+
+def load_secondary_4h(root: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame] | None:
+    frames = {}
+    for asset in ("BTC-USD", "ETH-USD"):
+        path = root / "raw" / "coinbase" / "4h" / f"{asset}.parquet"
+        if path.exists():
+            frames[asset] = pd.read_parquet(path).sort_index()
+    if not frames:
+        for asset, pair in {"BTC-USD": "XXBTZUSD", "ETH-USD": "XETHZUSD"}.items():
+            path = root / "raw" / "kraken" / "4h" / f"{pair}.parquet"
+            if path.exists():
+                frames[asset] = pd.read_parquet(path).sort_index()
+    if not frames:
+        return None
+    index = pd.DatetimeIndex(sorted(set().union(*(set(frame.index) for frame in frames.values()))))
+    panels = []
+    for field in ("open", "close", "volume"):
+        panels.append(pd.DataFrame({asset: frame[field].reindex(index) for asset, frame in frames.items()}, index=index))
+    return tuple(panels)
 
 
 def main() -> None:
@@ -62,8 +88,15 @@ def main() -> None:
         inputs = load_long(args.snapshot)
         label = "frozen public-data snapshot"
         config = load_config()
-        funding, perp_close, perp_high = load_deribit(ROOT / "data")
-        extras = {"funding": funding, "perp_close": perp_close, "perp_high": perp_high}
+        funding, perp_open, perp_close, perp_high, perp_volume = load_deribit(ROOT / "data")
+        extras = {
+            "funding": funding,
+            "perp_open": perp_open,
+            "perp_close": perp_close,
+            "perp_high": perp_high,
+            "perp_volume": perp_volume,
+            "secondary_4h": load_secondary_4h(ROOT / "data"),
+        }
     report, runs = run_research(*inputs, source_label=label, config=config, **extras)
     write_results(report, runs)
     print(f"Wrote reports/REPORT.md with {len(runs)} out-of-sample strategy rows")

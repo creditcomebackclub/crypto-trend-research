@@ -4,15 +4,23 @@
 
 ## Headline results
 
-The empirical snapshot has not been published yet. The table remains deliberately blank until the pre-registered pipeline runs on the frozen public-data release; synthetic CI output is never presented as market evidence.
+The table below is the locked out-of-sample result from the frozen public-data snapshot through 2026-09-30. Every row includes next-open execution, 25 bps per side, volume-scaled slippage, and weekly-block confidence intervals.
 
 | Strategy | OOS CAGR (95% CI) | Max drawdown (95% CI) | Sharpe (95% CI) |
 |---|---:|---:|---:|
-| BTC buy-and-hold | Pending snapshot | Pending snapshot | Pending snapshot |
-| BTC trend, volatility-targeted | Pending snapshot | Pending snapshot | Pending snapshot |
-| Top-20 momentum | Pending snapshot | Pending snapshot | Pending snapshot |
+| BTC buy-and-hold | 44.0% [-9.8%, 127.7%] | -76.7% [-90.9%, -44.2%] | 0.91 [0.17, 1.66] |
+| BTC trend, volatility-targeted | 28.0% [2.6%, 58.8%] | -33.6% [-57.3%, -22.1%] | 1.00 [0.23, 1.73] |
+| Top-20 momentum | -27.9% [-63.1%, 37.9%] | -98.7% [-99.9%, -81.2%] | 0.15 [-0.47, 0.81] |
 
-**Current interpretation:** no strategy claim is supported until the frozen snapshot is released and the pre-registered analysis is run. “No” is an acceptable final answer.
+**Interpretation:** the BTC trend ensemble cut drawdown substantially but did not match BTC's return, and its paired Sharpe-difference CI crossed zero, so it failed the full pre-registered success criterion.
+
+### Key findings
+
+- BTC trend returned 28.0% annualized versus 44.0% for buy-and-hold, while reducing max drawdown from -76.7% to -33.6%.
+- The funding-crowding filter hurt rather than helped: BTC trend CAGR fell from 28.0% to 21.6% and drawdown worsened slightly.
+- Cross-sectional top-20 momentum lost 27.9% annualized after costs and suffered a -98.7% drawdown.
+- The corrected Deflated Sharpe probability was 89.3% across seven strategy variants; CSCV PBO was 11.4%. Those diagnostics do not rescue a failed primary criterion.
+- The delta-neutral funding-carry diagnostic lost 5.0% annualized after realized funding and costs. The 4-hour study was not estimable because Kraken exposes only 720 recent bars, short of the locked training window.
 
 ## What this repository tests
 
@@ -55,7 +63,7 @@ python scripts/fetch_funding.py
 python scripts/build_snapshot.py
 ```
 
-Raw and processed data stay under ignored `data/` paths. The release archive's SHA-256 and its member hashes live in `data/SNAPSHOT.json`. Fetchers merge cached bars, skip completed ranges, and can resume after interruption. Endpoint limits and history constraints are documented in [docs/data-sources.md](docs/data-sources.md).
+Raw and processed data stay under ignored `data/` paths. The 57 MB release archive's SHA-256 (`9550a10693103434fad92e87ce3814730dd66b5f156f94073e5ea877d722c7cc`) and all member hashes live in `data/SNAPSHOT.json`. Fetchers merge cached bars, skip completed ranges, and can resume after interruption. Endpoint limits and history constraints are documented in [docs/data-sources.md](docs/data-sources.md).
 
 ## Research safeguards
 
@@ -80,4 +88,3 @@ The keyless scheduled workflow computes target weights from fresh public data an
 - `reports/`: generated report and figures
 
 This repository is research, not trading advice.
-

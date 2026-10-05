@@ -25,9 +25,10 @@ def run_trend(
     volatility_target: float,
     bps_per_side: float,
     eligible: pd.DataFrame | None = None,
+    periods_per_year: int = 365,
 ) -> StrategyRun:
     signal = trend_signal(close_prices, lookbacks)
-    vol = trailing_realized_volatility(close_prices)
+    vol = trailing_realized_volatility(close_prices, periods_per_year=periods_per_year)
     weights = volatility_targeted_weights(signal, vol, volatility_target)
     if eligible is not None:
         weights = weights.where(eligible, 0.0)
@@ -48,4 +49,3 @@ def run_weights(
 ) -> StrategyRun:
     portfolio = simulate_portfolio(open_prices, weights, close_prices * volume, bps_per_side=bps_per_side)
     return StrategyRun(name, portfolio, calculate_metrics(portfolio.returns, portfolio.turnover, portfolio.exposure))
-

@@ -8,7 +8,7 @@ def audit_bars(frame: pd.DataFrame, expected_frequency: str) -> dict[str, object
     if frame.empty:
         return {"rows": 0, "start": None, "end": None, "missing_intervals": 0, "zero_volume": 0, "return_outliers": 0}
     expected = pd.date_range(frame.index.min(), frame.index.max(), freq=expected_frequency, tz=frame.index.tz)
-    returns = frame["close"].pct_change()
+    returns = frame["close"].pct_change(fill_method=None)
     median = returns.median()
     mad = (returns - median).abs().median()
     outliers = ((returns - median).abs() > 20 * mad).sum() if mad > 0 else 0
@@ -30,4 +30,3 @@ def cross_exchange_divergence(left: pd.Series, right: pd.Series) -> dict[str, fl
         "median_absolute_pct": float(divergence.abs().median() * 100) if len(divergence) else float("nan"),
         "p99_absolute_pct": float(divergence.abs().quantile(0.99) * 100) if len(divergence) else float("nan"),
     }
-

@@ -23,3 +23,22 @@ def test_stablecoins_are_excluded():
     assert not eligible["USDC-USD"].any()
     assert eligible["BTC-USD"].any()
 
+
+def test_volume_lookback_uses_calendar_days_with_missing_bars():
+    idx = pd.date_range("2023-01-01", periods=150, freq="D", tz="UTC").delete(slice(100, 105))
+    close = pd.DataFrame({"A-USD": 1.0, "B-USD": 1.0}, index=idx)
+    volume = pd.DataFrame({"A-USD": 100.0, "B-USD": 90.0}, index=idx)
+    eligible = point_in_time_universe(close, volume, 1, min_history_days=30)
+    assert eligible["A-USD"].any()
+    assert not eligible["B-USD"].any()
+
+
+def test_undersized_early_universe_does_not_include_future_listings():
+    idx = pd.date_range("2020-01-01", periods=180, freq="D", tz="UTC")
+    close = pd.DataFrame({"OLD-USD": 10.0, "FUTURE-USD": np.nan}, index=idx)
+    volume = pd.DataFrame({"OLD-USD": 100.0, "FUTURE-USD": np.nan}, index=idx)
+    close.loc[idx[150]:, "FUTURE-USD"] = 10.0
+    volume.loc[idx[150]:, "FUTURE-USD"] = 1_000.0
+    eligible = point_in_time_universe(close, volume, 20, min_history_days=30)
+    assert eligible["OLD-USD"].any()
+    assert not eligible.loc[:idx[149], "FUTURE-USD"].any()

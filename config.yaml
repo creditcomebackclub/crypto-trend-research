@@ -17,7 +17,7 @@
     "sizes": [10, 20],
     "rebalance": "MS",
     "volume_lookback_days": 30,
-    "excluded_symbols": ["USDC", "USDT", "DAI", "PYUSD", "EURC", "WBTC", "WETH", "STETH", "CBETH"]
+    "excluded_symbols": ["USDC", "USDT", "USDS", "DAI", "PYUSD", "EURC", "AUDD", "PAX", "PAXG", "WBTC", "WETH", "STETH", "CBETH", "RETH", "LSETH", "MSOL", "JITOSOL"]
   },
   "strategy": {
     "daily_lookbacks": [20, 60, 120, 250],
@@ -51,4 +51,3 @@
     "paired_sharpe_difference_ci_lower": 0.0
   }
 }
-

@@ -13,7 +13,10 @@ def point_in_time_universe(
 ) -> pd.DataFrame:
     """Monthly top-N eligibility using only volume and history known then."""
     excluded = excluded or set()
-    dollar_volume = (close * volume).rolling(volume_lookback, min_periods=volume_lookback).sum()
+    # Calendar-time lookback: a fixed row count is wrong when an exchange omits
+    # candles on no-trade days. Eligibility still requires substantial coverage.
+    min_volume_observations = max(1, int(volume_lookback * 2 / 3))
+    dollar_volume = (close * volume).rolling(f"{volume_lookback}D", min_periods=min_volume_observations).sum()
     history = close.notna().cumsum() >= min_history_days
     candidates = history.copy()
     for col in candidates.columns:
@@ -28,7 +31,10 @@ def point_in_time_universe(
             continue
         decision = prior_rows[-1]
         valid = candidates.loc[decision]
-        ranked = dollar_volume.loc[decision].where(valid).nlargest(size).index
+        # ``nlargest`` may pad with NaN-labelled assets when fewer than N are
+        # eligible. Drop them explicitly so future listings cannot leak into an
+        # early, undersized universe.
+        ranked = dollar_volume.loc[decision].where(valid).dropna().nlargest(size).index
         result.loc[dates, ranked] = True
     return result
 

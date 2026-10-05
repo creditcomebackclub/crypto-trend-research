@@ -15,7 +15,7 @@ def trend_signal(close: pd.DataFrame, lookbacks: list[int]) -> pd.DataFrame:
 
 
 def trailing_realized_volatility(close: pd.DataFrame, window: int = 30, periods_per_year: int = 365) -> pd.DataFrame:
-    return close.pct_change().rolling(window, min_periods=window).std() * np.sqrt(periods_per_year)
+    return close.pct_change(fill_method=None).rolling(window, min_periods=window).std() * np.sqrt(periods_per_year)
 
 
 def volatility_targeted_weights(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -11,6 +12,18 @@ import pandas as pd
 
 
 USER_AGENT = "crypto-trend-research/0.1 (public research client)"
+_RATE_LOCK = threading.Lock()
+_NEXT_REQUEST = 0.0
+
+
+def _pace_requests(minimum_interval: float = 0.12) -> None:
+    global _NEXT_REQUEST
+    with _RATE_LOCK:
+        now = time.monotonic()
+        wait = max(0.0, _NEXT_REQUEST - now)
+        _NEXT_REQUEST = max(now, _NEXT_REQUEST) + minimum_interval
+    if wait:
+        time.sleep(wait)
 
 
 def get_json(url: str, params: dict[str, object] | None = None, attempts: int = 5) -> object:
@@ -19,6 +32,7 @@ def get_json(url: str, params: dict[str, object] | None = None, attempts: int = 
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
     for attempt in range(attempts):
         try:
+            _pace_requests()
             with urllib.request.urlopen(request, timeout=30) as response:
                 return json.load(response)
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
@@ -51,7 +65,6 @@ def coinbase_candles(product: str, start: pd.Timestamp, end: pd.Timestamp, granu
             frame = pd.DataFrame(rows, columns=["timestamp", "low", "high", "open", "close", "volume"])
             frames.append(frame)
         cursor = chunk_end + pd.Timedelta(seconds=granularity)
-        time.sleep(0.12)
     if not frames:
         return pd.DataFrame(columns=["open", "high", "low", "close", "volume"])
     result = pd.concat(frames, ignore_index=True)
@@ -85,27 +98,28 @@ def kraken_ohlc(pair: str, interval_minutes: int = 1440, since: int | None = Non
 
 def deribit_funding_history(currency: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
     instrument = f"{currency.upper()}-PERPETUAL"
-    cursor = int(pd.Timestamp(start, tz="UTC").timestamp() * 1000) if pd.Timestamp(start).tzinfo is None else int(pd.Timestamp(start).timestamp() * 1000)
+    start_ms = int(pd.Timestamp(start, tz="UTC").timestamp() * 1000) if pd.Timestamp(start).tzinfo is None else int(pd.Timestamp(start).timestamp() * 1000)
     stop = int(pd.Timestamp(end, tz="UTC").timestamp() * 1000) if pd.Timestamp(end).tzinfo is None else int(pd.Timestamp(end).timestamp() * 1000)
+    cursor_end = stop
     rows: list[dict[str, object]] = []
-    while cursor < stop:
+    while cursor_end > start_ms:
         payload = get_json(
             "https://www.deribit.com/api/v2/public/get_funding_rate_history",
-            {"instrument_name": instrument, "start_timestamp": cursor, "end_timestamp": stop, "count": 1000},
+            {"instrument_name": instrument, "start_timestamp": start_ms, "end_timestamp": cursor_end, "count": 1000},
         )
         batch = payload.get("result", []) if isinstance(payload, dict) else []
         if not batch:
             break
         rows.extend(batch)
-        latest = max(int(row["timestamp"]) for row in batch)
-        if latest <= cursor:
+        earliest = min(int(row["timestamp"]) for row in batch)
+        if earliest >= cursor_end:
             break
-        cursor = latest + 1
-        time.sleep(0.12)
+        cursor_end = earliest - 1
     if not rows:
         return pd.DataFrame(columns=["interest_8h", "interest_1h"])
     frame = pd.DataFrame(rows)
     frame["timestamp"] = pd.to_datetime(frame["timestamp"], unit="ms", utc=True)
+    frame = frame.drop_duplicates("timestamp", keep="last")
     return frame.set_index("timestamp").sort_index()[[c for c in ["interest_8h", "interest_1h"] if c in frame]]
 
 

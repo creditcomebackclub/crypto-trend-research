@@ -28,9 +28,25 @@ def sha256(path: Path) -> str:
 def main() -> None:
     config = load_config()
     raw = ROOT / "data" / "raw"
-    coinbase_daily = sorted((raw / "coinbase" / "1d").glob("*.parquet"))
-    if not coinbase_daily:
+    all_coinbase_daily = sorted((raw / "coinbase" / "1d").glob("*.parquet"))
+    if not all_coinbase_daily:
         raise SystemExit("No Coinbase daily cache. Run scripts/fetch_spot.py first.")
+    products_path = raw / "coinbase" / "products.json"
+    products = json.loads(products_path.read_text()) if products_path.exists() else []
+    catalog = {str(item["id"]): item for item in products}
+    quote_rank = {"USD": 0, "USDC": 1, "USDT": 2}
+    excluded = set(config["universe"]["excluded_symbols"])
+    preferred: dict[str, tuple[int, Path]] = {}
+    for path in all_coinbase_daily:
+        meta = catalog.get(path.stem, {})
+        quote = str(meta.get("quote_currency", path.stem.rsplit("-", 1)[-1]))
+        base = str(meta.get("base_currency", path.stem[: -(len(quote) + 1)]))
+        if meta.get("fx_stablecoin") or base.upper() in excluded:
+            continue
+        candidate = (quote_rank.get(quote, 99), path)
+        if base not in preferred or candidate[0] < preferred[base][0]:
+            preferred[base] = candidate
+    coinbase_daily = sorted(item[1] for item in preferred.values())
     analysis_end = pd.Timestamp(config["analysis"]["end"], tz="UTC") + pd.Timedelta(days=1) - pd.Timedelta(microseconds=1)
     long_frames = []
     audit: dict[str, object] = {"assets": {}, "cross_exchange": {}, "notes": []}
@@ -53,12 +69,14 @@ def main() -> None:
             audit["cross_exchange"][asset] = cross_exchange_divergence(
                 pd.read_parquet(left_path)["close"], pd.read_parquet(right_path)["close"]
             )
-    products_path = raw / "coinbase" / "products.json"
     if products_path.exists():
-        products = json.loads(products_path.read_text())
         audit["catalog"] = {
             "downloaded_products": len(products),
             "offline_or_delisted_visible": sum(p.get("status") != "online" for p in products),
+            "cached_offline_or_delisted": sum(
+                catalog.get(path.stem, {}).get("status") != "online" for path in all_coinbase_daily
+            ),
+            "selected_unique_base_assets": len(coinbase_daily),
             "warning": "The current catalog cannot prove completeness for products removed from the API.",
         }
     else:

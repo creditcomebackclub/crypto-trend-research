@@ -23,13 +23,8 @@ def main() -> None:
     end = pd.Timestamp(config["analysis"]["end"], tz="UTC") + pd.Timedelta(days=1)
     for currency in args.currencies:
         path = ROOT / "data" / "raw" / "deribit" / "funding" / f"{currency.upper()}.parquet"
-        resume = start
-        if path.exists():
-            old = pd.read_parquet(path)
-            if len(old):
-                resume = max(resume, old.index.max() + pd.Timedelta(milliseconds=1))
         try:
-            fresh = deribit_funding_history(currency, resume, end)
+            fresh = deribit_funding_history(currency, start, end)
             merged = merge_cache(path, fresh.loc[:end])
             price_path = ROOT / "data" / "raw" / "deribit" / "perpetual" / f"{currency.upper()}.parquet"
             prices = deribit_perpetual_candles(currency, start, end)
