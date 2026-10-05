@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from ctr.config import load_config
 from ctr.data.public import coinbase_candles, coinbase_products, deribit_funding_history
+from ctr.meta import build_meta_features, predict_logistic_artifact
 from ctr.signals import cross_sectional_momentum_weights, funding_zscore, trend_signal, trailing_realized_volatility, volatility_targeted_weights
 from ctr.universe import point_in_time_universe
 
@@ -78,18 +80,32 @@ def targets(close: pd.DataFrame, volume: pd.DataFrame) -> dict[str, pd.Series]:
         "H3 top-20 momentum": momentum.iloc[-1],
         "H3 momentum + BTC regime": (momentum.mul(btc_regime, axis=0)).iloc[-1],
     }
+    aligned_funding = None
     try:
         end = close.index[-1] + pd.Timedelta(days=1)
         funding = deribit_funding_history("BTC", end - pd.Timedelta(days=120), end)
         column = "interest_1h" if "interest_1h" in funding else funding.columns[0]
         daily_funding = funding[column].resample("1D").sum().to_frame(column)
-        z = funding_zscore(daily_funding, cfg["strategy"]["funding_z_lookback"])[column].iloc[-1]
+        aligned_funding = daily_funding.rename(columns={column: "BTC-USD"})
+        z = funding_zscore(aligned_funding, cfg["strategy"]["funding_z_lookback"])["BTC-USD"].iloc[-1]
         h2 = result["H1 BTC trend"].copy()
         if z > cfg["strategy"]["funding_extreme_z"]:
             h2 *= 0.5
         result["H2 BTC funding filter"] = h2
     except Exception:
         result["H2 BTC funding filter"] = pd.Series({"BTC-USD": np.nan})
+    artifact_path = ROOT / "models" / "meta-labeling-v1.json"
+    if artifact_path.exists():
+        features = build_meta_features(close, volume, top20, aligned_funding, cfg["strategy"]["daily_lookbacks"])
+        starts = signal["BTC-USD"].gt(0) & signal["BTC-USD"].shift(1, fill_value=0).le(0)
+        episode_starts = starts.index[starts]
+        multiplier = 0.0
+        if signal["BTC-USD"].iloc[-1] > 0 and len(episode_starts):
+            episode_start = episode_starts[-1]
+            artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
+            probability = float(predict_logistic_artifact(features.loc[[episode_start]], artifact).iloc[0])
+            multiplier = float(np.clip(2 * probability - 1, 0, 1))
+        result["M1 BTC trend + logistic meta"] = result["H1 BTC trend"] * multiplier
     return result
 
 
