@@ -586,19 +586,27 @@ date_utc,strategy,asset,target_weight,reference_close,prior_day_pnl,source
 2026-11-01,H3 top-20 momentum,USELESS-USD,0.1666666666666666,0.12689,0.00757457846952,Coinbase Exchange public candles
 2026-11-01,H3 top-20 momentum,VVV-USD,0.1666666666666666,23.3688,0.0031980529941658,Coinbase Exchange public candles
 2026-11-01,H3 top-20 momentum,ZEC-USD,0.1666666666666666,1251.07,0.0067962809657685,Coinbase Exchange public candles
-2026-11-02,H1 BTC trend,BTC-USD,1.0,78230.55,0.003155722656082993,Coinbase Exchange public candles
-2026-11-02,H1 top-10 trend,BTC-USD,0.28714996463412906,78230.55,0.0007717096081656099,Coinbase Exchange public candles
-2026-11-02,H1 top-10 trend,HYPE-USD,0.1956671126459765,87.78,-0.0036362385312526443,Coinbase Exchange public candles
-2026-11-02,H1 top-10 trend,NEAR-USD,0.08696174050159684,4.284,0.0024523080621314352,Coinbase Exchange public candles
-2026-11-02,H1 top-10 trend,QNT-USD,0.13514326949124952,201.71,0.00525190321874972,Coinbase Exchange public candles
-2026-11-02,H1 top-10 trend,SUI-USD,0.16917281798076528,0.8996,-0.0008585591021329903,Coinbase Exchange public candles
-2026-11-02,H1 top-10 trend,ZEC-USD,0.12590509474628284,1233.05,-0.0016382011012140464,Coinbase Exchange public candles
-2026-11-02,H2 BTC funding filter,BTC-USD,1.0,78230.55,0.003155722656082993,Coinbase Exchange public candles
-2026-11-02,H3 momentum + BTC regime,NEAR-USD,0.25,4.284,0.005511602760079927,Coinbase Exchange public candles
+2026-11-02,H1 BTC trend,BTC-USD,1.0,78230.55,0.0031557226560829,Coinbase Exchange public candles
+2026-11-02,H1 top-10 trend,BTC-USD,0.287149964634129,78230.55,0.0007717096081656,Coinbase Exchange public candles
+2026-11-02,H1 top-10 trend,HYPE-USD,0.1956671126459765,87.78,-0.0036362385312526,Coinbase Exchange public candles
+2026-11-02,H1 top-10 trend,NEAR-USD,0.0869617405015968,4.284,0.0024523080621314,Coinbase Exchange public candles
+2026-11-02,H1 top-10 trend,QNT-USD,0.1351432694912495,201.71,0.0052519032187497,Coinbase Exchange public candles
+2026-11-02,H1 top-10 trend,SUI-USD,0.1691728179807652,0.8996,-0.0008585591021329,Coinbase Exchange public candles
+2026-11-02,H1 top-10 trend,ZEC-USD,0.1259050947462828,1233.05,-0.001638201101214,Coinbase Exchange public candles
+2026-11-02,H2 BTC funding filter,BTC-USD,1.0,78230.55,0.0031557226560829,Coinbase Exchange public candles
+2026-11-02,H3 momentum + BTC regime,NEAR-USD,0.25,4.284,0.0055116027600799,Coinbase Exchange public candles
 2026-11-02,H3 momentum + BTC regime,PUMP-USD,0.25,0.004188,0.0,Coinbase Exchange public candles
 2026-11-02,H3 momentum + BTC regime,QNT-USD,0.25,201.71,0.0,Coinbase Exchange public candles
 2026-11-02,H3 momentum + BTC regime,STRK-USD,0.25,0.04282,-0.0,Coinbase Exchange public candles
-2026-11-02,H3 top-20 momentum,NEAR-USD,0.25,4.284,0.005511602760079927,Coinbase Exchange public candles
+2026-11-02,H3 top-20 momentum,NEAR-USD,0.25,4.284,0.0055116027600799,Coinbase Exchange public candles
 2026-11-02,H3 top-20 momentum,PUMP-USD,0.25,0.004188,0.0,Coinbase Exchange public candles
 2026-11-02,H3 top-20 momentum,QNT-USD,0.25,201.71,0.0,Coinbase Exchange public candles
 2026-11-02,H3 top-20 momentum,STRK-USD,0.25,0.04282,-0.0,Coinbase Exchange public candles
+2026-11-03,H1 top-10 trend,HYPE-USD,0.3569514070136964,83.95,-0.00017822348869040848,Coinbase Exchange public candles
+2026-11-03,H1 top-10 trend,NEAR-USD,0.15917183078934866,3.8582,-0.0028073087059319038,Coinbase Exchange public candles
+2026-11-03,H1 top-10 trend,QNT-USD,0.25707270344449457,193.95,0.000903201900839261,Coinbase Exchange public candles
+2026-11-03,H1 top-10 trend,ZEC-USD,0.2268040587524604,1133.1,-0.0016957593220354758,Coinbase Exchange public candles
+2026-11-03,H3 top-20 momentum,NEAR-USD,0.25,3.8582,-0.008070528170604968,Coinbase Exchange public candles
+2026-11-03,H3 top-20 momentum,PUMP-USD,0.25,0.003973,-0.0002978317846080436,Coinbase Exchange public candles
+2026-11-03,H3 top-20 momentum,QNT-USD,0.25,193.95,0.0016708229426433685,Coinbase Exchange public candles
+2026-11-03,H3 top-20 momentum,STRK-USD,0.25,0.04089,-0.007027884833371134,Coinbase Exchange public candles
