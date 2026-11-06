@@ -619,18 +619,25 @@ date_utc,strategy,asset,target_weight,reference_close,prior_day_pnl,source
 2026-11-04,H3 top-20 momentum,QNT-USD,0.25,192.1,-0.009896452635751,Coinbase Exchange public candles
 2026-11-04,H3 top-20 momentum,STRK-USD,0.25,0.0422,-0.0114299043620247,Coinbase Exchange public candles
 2026-11-05,H1 BTC trend,BTC-USD,1.0,80428.31,0.0,Coinbase Exchange public candles
-2026-11-05,H1 top-10 trend,BTC-USD,0.29245097142422805,80428.31,0.0,Coinbase Exchange public candles
-2026-11-05,H1 top-10 trend,HYPE-USD,0.1987955814697132,83.73,0.004877226014489925,Coinbase Exchange public candles
-2026-11-05,H1 top-10 trend,NEAR-USD,0.0874077738340934,4.0018,-0.0013181544305200523,Coinbase Exchange public candles
-2026-11-05,H1 top-10 trend,QNT-USD,0.13604029986257427,203.88,-0.002269651040163189,Coinbase Exchange public candles
-2026-11-05,H1 top-10 trend,SUI-USD,0.16939539996576355,0.9283,0.0,Coinbase Exchange public candles
-2026-11-05,H1 top-10 trend,ZEC-USD,0.1159099734436277,1295.31,0.016490923316441752,Coinbase Exchange public candles
+2026-11-05,H1 top-10 trend,BTC-USD,0.292450971424228,80428.31,0.0,Coinbase Exchange public candles
+2026-11-05,H1 top-10 trend,HYPE-USD,0.1987955814697132,83.73,0.0048772260144899,Coinbase Exchange public candles
+2026-11-05,H1 top-10 trend,NEAR-USD,0.0874077738340934,4.0018,-0.00131815443052,Coinbase Exchange public candles
+2026-11-05,H1 top-10 trend,QNT-USD,0.1360402998625742,203.88,-0.0022696510401631,Coinbase Exchange public candles
+2026-11-05,H1 top-10 trend,SUI-USD,0.1693953999657635,0.9283,0.0,Coinbase Exchange public candles
+2026-11-05,H1 top-10 trend,ZEC-USD,0.1159099734436277,1295.31,0.0164909233164417,Coinbase Exchange public candles
 2026-11-05,H2 BTC funding filter,BTC-USD,1.0,80428.31,0.0,Coinbase Exchange public candles
 2026-11-05,H3 momentum + BTC regime,NEAR-USD,0.25,4.0018,-0.0,Coinbase Exchange public candles
 2026-11-05,H3 momentum + BTC regime,PUMP-USD,0.25,0.004244,0.0,Coinbase Exchange public candles
 2026-11-05,H3 momentum + BTC regime,QNT-USD,0.25,203.88,-0.0,Coinbase Exchange public candles
 2026-11-05,H3 momentum + BTC regime,STRK-USD,0.25,0.04247,0.0,Coinbase Exchange public candles
-2026-11-05,H3 top-20 momentum,NEAR-USD,0.25,4.0018,-0.0020534812012541204,Coinbase Exchange public candles
-2026-11-05,H3 top-20 momentum,PUMP-USD,0.25,0.004244,0.02288776796973524,Coinbase Exchange public candles
-2026-11-05,H3 top-20 momentum,QNT-USD,0.25,203.88,-0.002192416817126619,Coinbase Exchange public candles
-2026-11-05,H3 top-20 momentum,STRK-USD,0.25,0.04247,0.008188706917624078,Coinbase Exchange public candles
+2026-11-05,H3 top-20 momentum,NEAR-USD,0.25,4.0018,-0.0020534812012541,Coinbase Exchange public candles
+2026-11-05,H3 top-20 momentum,PUMP-USD,0.25,0.004244,0.0228877679697352,Coinbase Exchange public candles
+2026-11-05,H3 top-20 momentum,QNT-USD,0.25,203.88,-0.0021924168171266,Coinbase Exchange public candles
+2026-11-05,H3 top-20 momentum,STRK-USD,0.25,0.04247,0.008188706917624,Coinbase Exchange public candles
+2026-11-06,H1 top-10 trend,NEAR-USD,0.25755047363869654,3.6569,0.004055706090744859,Coinbase Exchange public candles
+2026-11-06,H1 top-10 trend,QNT-USD,0.39437673891299707,188.5,0.008375523015218577,Coinbase Exchange public candles
+2026-11-06,H1 top-10 trend,ZEC-USD,0.34807278744830644,1278.31,0.007346507303828518,Coinbase Exchange public candles
+2026-11-06,H3 top-20 momentum,NEAR-USD,0.25,3.6569,0.011599958198348859,Coinbase Exchange public candles
+2026-11-06,H3 top-20 momentum,PUMP-USD,0.25,0.003864,-0.004852125693160819,Coinbase Exchange public candles
+2026-11-06,H3 top-20 momentum,QNT-USD,0.25,188.5,0.015391621129326016,Coinbase Exchange public candles
+2026-11-06,H3 top-20 momentum,STRK-USD,0.25,0.03929,0.001183431952662739,Coinbase Exchange public candles
